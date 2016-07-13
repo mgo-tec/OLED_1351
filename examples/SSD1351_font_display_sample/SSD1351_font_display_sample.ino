@@ -91,6 +91,7 @@ void setup() {
           ssd1351.SSD1351_8x16_DisplayOut(i*8, j*16, Red, Green, Blue, font_buf[i]);
         }else{
           if(i > 7) break;
+          //２倍角フォント表示
           ssd1351.SSD1351_8x16_2x2_DisplayOut(i*16, 96, Red, Green, Blue, font_buf[i]);
         }
       }
