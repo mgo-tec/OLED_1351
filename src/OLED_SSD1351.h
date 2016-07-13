@@ -1,14 +1,12 @@
 /*
-  OLED_SSD1351.h - for ESP-WROOM-02 ( esp8266 ) or Arduino
+  OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
   Beta version 1.0
+  
+License MIT [Modified person is Mgo-tec.]
 
-Software License Agreement (BSD License)
+Original License is BSD [Copyright (c) 2012, Adafruit Industries]
 
-Copyright (c) 2012, Adafruit Industries
-All rights reserved.
-
-Modified person is mgo-tec.
-
+BSD License:
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 1. Redistributions of source code must retain the above copyright

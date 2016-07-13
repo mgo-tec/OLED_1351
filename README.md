@@ -8,9 +8,10 @@ Beta ver1.0
 日本語の16x16ドットフォントを表示させるクラスもあります。
 
 
-Licence:
+# Credits and license
+License MIT [Modified person is Mgo-tec.]
 
-  BSDライセンス
+Original License is BSD [Copyright (c) 2012, Adafruit Industries]
 
 詳しくはブログ参照：
 
