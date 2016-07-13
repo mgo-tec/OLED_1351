@@ -16,7 +16,7 @@ const char* UTF8SJIS_file = "/Utf8Sjis.tbl"; //UTF8 Shift_JIS 変換テーブル
 const char* ZenkakuFontFile = "/shnmk16.bdf"; //全角フォントファイル名を定義
 const char* HalfFontFile = "/shnm8x16r.bdf"; //半角フォントファイル名を定義
 
-char* cc[8] = {"フリー日本語漢字","東雲(ｼﾉﾉﾒ)ﾌｫﾝﾄ★","16x16ﾄﾞｯﾄ です。","全角-半角混在OK!","半角ｶﾀｶﾅもOK！！","16bit-Fullカラー","自由にレイアウト","できます★★♪♪"};
+char* cc[8] = {"フリー日本語漢字","東雲(ｼﾉﾉﾒ)ﾌｫﾝﾄ★","16x16ﾄﾞｯﾄ です。","全角-半角混在OK!","半角ｶﾀｶﾅもOK！！","16bit カラー★♪","倍角表示"};
 
 uint8_t sj_txt[32]; //Shift_JISコード
 uint16_t sj_length; //Shift_JISコードの長さ
@@ -44,7 +44,7 @@ void setup() {
   int8_t i,j;
   int8_t ci=0;
 
-  for(j=0; j<8; j++){
+  for(j=0; j<7; j++){
     u8ts.UTF8_to_SJIS_str_cnv(UTF8SJIS_file, cc[j], sj_txt, &sj_length); //UTF8コードをShift_JISコードに変換
     SFR.SjisToShinonome16FontRead_ALL(ZenkakuFontFile, HalfFontFile, 0, 0, sj_txt, sj_length, font_buf); //S_JISコードから東雲フォント抽出
 
@@ -86,8 +86,13 @@ void setup() {
           Red = 31; Green = 0; Blue = 31;
           ci = 0;
         }
-        //半角一文字ずつ表示させる
-        ssd1351.SSD1351_8x16_DisplayOut(i*8, j*16, Red, Green, Blue, font_buf[i]);
+        if(j < 6 ){
+          //半角一文字ずつ表示させる
+          ssd1351.SSD1351_8x16_DisplayOut(i*8, j*16, Red, Green, Blue, font_buf[i]);
+        }else{
+          if(i > 7) break;
+          ssd1351.SSD1351_8x16_2x2_DisplayOut(i*16, 96, Red, Green, Blue, font_buf[i]);
+        }
       }
     }
   }
