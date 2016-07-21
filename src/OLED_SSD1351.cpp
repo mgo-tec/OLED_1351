@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.0
+  Beta version 1.1
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -291,15 +291,23 @@ void OLED_SSD1351::SSD1351_RAM_Vscrolle(uint8_t StartY, uint8_t OffsetY){
  
 }
 //****************電光掲示風 Dot Scroll Replace**************************************
-void OLED_SSD1351::Scroller_8x16Dot_Replace(uint8_t drection, uint8_t* next_buff1, uint8_t* scl_buff1, uint8_t* Orign_buff1)
+void OLED_SSD1351::Scroller_8x16Dot_Replace(uint8_t drection, uint8_t next_buff1[][16], uint8_t scl_buff1[][16], uint8_t* Orign_buff1)
 {
-  uint8_t i;
+  int8_t i, j;
 
-  for(i=0 ; i<16 ; i++){
-    bitWrite( next_buff1[i],7, bitRead( scl_buff1[i],7));
-    scl_buff1[i] = scl_buff1[i]<<1;
-    bitWrite( scl_buff1[i],0, bitRead( Orign_buff1[i],7));
+  for(i=15 ; i>=0 ; i--){ //デクリメントの方が処理速度早い
+    next_buff1[15][i] = ( next_buff1[15][i] | ( scl_buff1[15][i] & B10000000 ));
+    scl_buff1[15][i] = scl_buff1[15][i]<<1;
+    scl_buff1[15][i] = ( scl_buff1[15][i] | (( Orign_buff1[i] & B10000000 )>>7));
     Orign_buff1[i] = Orign_buff1[i]<<1;
+  }
+  for(i=14 ; i>=0 ; i--){
+    for(j=15 ; j>=0 ; j--){ //デクリメントの方が処理速度早い
+      next_buff1[i][j] = ( next_buff1[i][j] | ( scl_buff1[i][j] & B10000000 ));
+      scl_buff1[i][j] = scl_buff1[i][j]<<1;
+      scl_buff1[i][j] = ( scl_buff1[i][j] | (( next_buff1[i+1][j] & B10000000 )>>7));
+      next_buff1[i+1][j] = next_buff1[i+1][j]<<1;
+    }
   }
 }
 //****************SSD1351 RGBコントラスト*************************************************
