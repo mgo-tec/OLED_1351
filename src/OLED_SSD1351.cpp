@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.1
+  Beta version 1.3
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -316,6 +316,83 @@ void OLED_SSD1351::SSD1351_RGBcontrast(uint8_t Red, uint8_t Green, uint8_t Blue)
     writeData(Red); //Red contrast (reset=0x8A)
     writeData(Green); //Green contrast (reset=0x51)
     writeData(Blue); //Blue contrast (reset=0x8A)
+}
+//****************1pixel表示*************************************************
+void OLED_SSD1351::SSD1351_1pixel_DisplayOut(uint8_t x, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue){
+  uint8_t RGBbit1 = (Red<<3) | (Green>>3);
+  uint8_t RGBbit2 = (Green<<5) | Blue;
+  
+  writeCommand(0x15); //Set Column
+    writeData(x);
+    writeData(x);
+  writeCommand(0x75); //Set Row
+    writeData(y);
+    writeData(y);
+  writeCommand(0x5C); //Write RAM
+    writeData(RGBbit1);
+    writeData(RGBbit2);
+}
+//****************水平直線描画*************************************************
+void OLED_SSD1351::SSD1351_lineH(uint8_t x1, uint8_t x2, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue){
+  uint8_t RGBbit1 = (Red<<3) | (Green>>3);
+  uint8_t RGBbit2 = (Green<<5) | Blue;
+  
+  writeCommand(0x15); //Set Column
+    writeData(x1);
+    writeData(x2);
+  writeCommand(0x75); //Set Row
+    writeData(y);
+    writeData(y);
+  writeCommand(0x5C); //Write RAM
+    for(int i=0; i<=(x2-x1); i++){
+      writeData(RGBbit1);
+      writeData(RGBbit2);
+    }
+}
+//****************垂直直線描画*************************************************
+void OLED_SSD1351::SSD1351_lineV(uint8_t x, uint8_t y1, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue){
+  uint8_t RGBbit1 = (Red<<3) | (Green>>3);
+  uint8_t RGBbit2 = (Green<<5) | Blue;
+  
+  writeCommand(0x15); //Set Column
+    writeData(x);
+    writeData(x);
+  writeCommand(0x75); //Set Row
+    writeData(y1);
+    writeData(y2);
+  writeCommand(0x5C); //Write RAM
+    for(int i=0; i<=(y2-y1); i++){
+      writeData(RGBbit1);
+      writeData(RGBbit2);
+    }
+}
+//****************四角形、線画*************************************************
+void OLED_SSD1351::SSD1351_RectLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue){
+  uint8_t RGBbit1 = (Red<<3) | (Green>>3);
+  uint8_t RGBbit2 = (Green<<5) | Blue;
+  
+  SSD1351_lineH(x1, x2, y1, Red, Green, Blue);
+  SSD1351_lineH(x1, x2, y2, Red, Green, Blue);
+  SSD1351_lineV(x1, y1, y2, Red, Green, Blue);
+  SSD1351_lineV(x2, y1, y2, Red, Green, Blue);
+}
+//****************四角形、塗りつぶし*************************************************
+void OLED_SSD1351::SSD1351_RectFill(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue){
+  uint8_t RGBbit1 = (Red<<3) | (Green>>3);
+  uint8_t RGBbit2 = (Green<<5) | Blue;
+  
+  writeCommand(0x15); //Set Column
+    writeData(x1);
+    writeData(x2);
+  writeCommand(0x75); //Set Row
+    writeData(y1);
+    writeData(y2);
+  writeCommand(0x5C); //Write RAM
+  for(int i=0; i<=(y2-y1); i++)
+    for(int j=0; j<=(x2-x1); j++){
+      writeData(RGBbit1);
+      writeData(RGBbit2);
+    }
 }
 //****************SPIデータ処理*************************************************
 void OLED_SSD1351::SPIwrite(uint8_t c){

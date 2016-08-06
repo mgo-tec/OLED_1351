@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.1
+  Beta version 1.3
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -48,6 +48,11 @@ public:
   void SSD1351_RAM_Vscrolle(uint8_t StartY, uint8_t OffsetY);
   void Scroller_8x16Dot_Replace(uint8_t drection, uint8_t next_buff1[][16], uint8_t scl_buff1[][16], uint8_t* Orign_buff1);
   void SSD1351_RGBcontrast(uint8_t Red, uint8_t Green, uint8_t Blue);
+  void SSD1351_1pixel_DisplayOut(uint8_t x, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue);
+  void SSD1351_lineH(uint8_t x1, uint8_t x2, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue);
+  void SSD1351_lineV(uint8_t x, uint8_t y1, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
+  void SSD1351_RectLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
+  void SSD1351_RectFill(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
   void SPIwrite(uint8_t c);
   void writeCommand(uint8_t c);
   void writeData(uint8_t c);
