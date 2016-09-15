@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.3
+  Beta version 1.40
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -39,7 +39,9 @@ class OLED_SSD1351
 public:
   OLED_SSD1351();
   void SSD1351_Init(const uint8_t sclk, const uint8_t mosi, const uint8_t cs, const uint8_t dc, const uint8_t rst);
+  void SSD1351_Init262(const uint8_t sclk, const uint8_t mosi, const uint8_t cs, const uint8_t dc, const uint8_t rst, uint8_t col_form);
   void SSD1351_BlackOut();
+  void SSD1351_BlackOut262();
   void SSD1351_8x16_DisplayOut(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint8_t* buf);
   void SSD1351_8x16_DisplayOut_1col_LtoR(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint16_t sjis_len, uint8_t buf[][16]);
   void SSD1351_8x16_DisplayOut_1col_RtoL(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint16_t sjis_len, uint8_t buf[][16]);
@@ -49,6 +51,7 @@ public:
   void Scroller_8x16Dot_Replace(uint8_t drection, uint8_t next_buff1[][16], uint8_t scl_buff1[][16], uint8_t* Orign_buff1);
   void SSD1351_RGBcontrast(uint8_t Red, uint8_t Green, uint8_t Blue);
   void SSD1351_1pixel_DisplayOut(uint8_t x, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue);
+  void SSD1351_1pixel_DisplayOut262(uint8_t x, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue);
   void SSD1351_lineH(uint8_t x1, uint8_t x2, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue);
   void SSD1351_lineV(uint8_t x, uint8_t y1, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
   void SSD1351_RectLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);

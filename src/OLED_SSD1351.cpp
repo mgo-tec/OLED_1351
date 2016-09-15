@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.3
+  Beta version 1.40
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -108,6 +108,84 @@ void OLED_SSD1351::SSD1351_Init(const uint8_t sclk, const uint8_t mosi, const ui
   writeCommand(0x9E); //Scroll Stop Moving
   writeCommand(0xAF); //Sleep mode On (Display ON)
 }
+//****************SSD1351初期化*************************************************
+void OLED_SSD1351::SSD1351_Init262(const uint8_t sclk, const uint8_t mosi, const uint8_t cs, const uint8_t dc, const uint8_t rst, uint8_t col_form){
+
+  _DCpin = dc; _sclk = sclk; _mosi = mosi; _RSTpin = rst; _cs = cs;
+  pinMode(_DCpin, OUTPUT);
+  pinMode(_sclk, OUTPUT);
+  pinMode(_mosi, OUTPUT);
+  pinMode(_RSTpin, OUTPUT);
+  pinMode(_cs, OUTPUT);
+  digitalWrite(_cs, LOW);
+   
+  digitalWrite(_RSTpin, HIGH);
+  delay(500);
+  digitalWrite(_RSTpin, LOW);
+  delay(500);
+  digitalWrite(_RSTpin, HIGH);
+  delay(500);
+  
+  writeCommand(0xFD); //Set Command Lock
+    writeData(0x12); //Unlock OLED driver IC MCU interface from entering command
+  writeCommand(0xFD); //Set Command Lock
+    writeData(0xB1); //Command A2,B1,B3,BB,BE,C1 accessible if in unlock state
+  writeCommand(0xAE); //Sleep mode On (Display OFF)
+  writeCommand(0xB3); //Front Clock Divider
+    writeCommand(0xF1); // 7:4 = Oscillator Frequency, 3:0 = CLK Div Ratio (A[3:0]+1 = 1..16)
+  writeCommand(0xCA); //Set MUX Ratio
+    writeData(127);
+  writeCommand(0xA0); //Set Re-map
+  switch(col_form){
+    case 0:
+      writeData(B01110100); //65k color
+      break;
+    case 1:
+      writeData(B10110100); //262k color
+      break;
+    case 2:
+      writeData(B11110100); //262k color, 16-bit format 2
+  }
+  writeCommand(0xA0); //Set Re-map
+    //writeData(B01110100); //65k color
+    writeData(B10110100); //262k color
+    //writeData(B11110100); //262k color, 16-bit format 2
+  writeCommand(0x15); //Set Column
+    writeData(0); //start
+    writeData(127); //end
+  writeCommand(0x75); //Set Row
+    writeData(0); //start
+    writeData(127); //end
+  writeCommand(0xA1); //Set Display Start Line
+    writeData(0);
+  writeCommand(0xA2); //Set Display Offset
+    writeData(0);
+  writeCommand(0xB5); //Set GPIO
+    writeData(0);
+  writeCommand(0xAB); //Function Selection
+    writeData(0x01); //Enable internal Vdd /8-bit parallel
+    //writeData(B01000001); //Enable internal Vdd /Select 16-bit parallel interface
+  writeCommand(0xB1); //Set Reset(Phase 1) /Pre-charge(Phase 2)
+    //writeCommand(B00110010); //5 DCLKs / 3 DCLKs
+    writeCommand(0x74);
+  writeCommand(0xBE); //Set VCOMH Voltage
+    writeCommand(0x05); //0.82 x VCC [reset]
+  writeCommand(0xA6); //Reset to normal display
+  writeCommand(0xC1); //Set Contrast
+    writeData(0xC8); //Red contrast (reset=0x8A)
+    writeData(0x80); //Green contrast (reset=0x51)
+    writeData(0xC8); //Blue contrast (reset=0x8A)
+  writeCommand(0xC7); //Master Contrast Current Control
+    writeData(0x0F); //0-15
+  writeCommand(0xB4); //Set Segment Low Voltage(VSL)
+    writeData(0xA0);
+    writeData(0xB5);
+    writeData(0x55);
+  writeCommand(0xB6); //Set Second Precharge Period
+    writeData(0x01); //1 DCLKS
+  writeCommand(0x9E); //Scroll Stop Moving
+  writeCommand(0xAF); //Sleep mode On (Display ON)
+}
 //****************全画面消去*************************************************
 void OLED_SSD1351::SSD1351_BlackOut(){
   writeCommand(0x15); //Set Column
@@ -121,6 +199,21 @@ void OLED_SSD1351::SSD1351_BlackOut(){
     writeData(0x00);
     writeData(0x00);
     //writeData(0x00); //262k colorの場合３バイト分送信
+  }
+}
+//****************全画面消去*************************************************
+void OLED_SSD1351::SSD1351_BlackOut262(){
+  writeCommand(0x15); //Set Column
+    writeData(0x00);
+    writeData(127);
+  writeCommand(0x75); //Set Row
+    writeData(0x00);
+    writeData(127);
+  writeCommand(0x5C); //Write RAM
+  for(int i=0; i<128*128; i++){
+    writeData(0x00);
+    writeData(0x00);
+    writeData(0x00); //262k colorの場合３バイト分送信
   }
 }
 //****************等倍フォント表示*************************************************
@@ -331,6 +424,20 @@ void OLED_SSD1351::SSD1351_1pixel_DisplayOut(uint8_t x, uint8_t y, uint8_t Red, 
   writeCommand(0x5C); //Write RAM
     writeData(RGBbit1);
     writeData(RGBbit2);
+}
+//****************1pixel表示*************************************************
+void OLED_SSD1351::SSD1351_1pixel_DisplayOut262(uint8_t x, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue){
+  //Red, Green, Blue Max=63 (B00111111) 
+  writeCommand(0x15); //Set Column
+    writeData(x);
+    writeData(x);
+  writeCommand(0x75); //Set Row
+    writeData(y);
+    writeData(y);
+  writeCommand(0x5C); //Write RAM 262k color serial
+    writeData(Red);
+    writeData(Green);
+    writeData(Blue);
 }
 //****************水平直線描画*************************************************
 void OLED_SSD1351::SSD1351_lineH(uint8_t x1, uint8_t x2, uint8_t y, uint8_t Red, uint8_t Green, uint8_t Blue){
