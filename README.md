@@ -1,11 +1,15 @@
 # OLED_SSD1351
 Arduino IDE library for operating the Adafruit OLED(SSD1351) in ESP-WROOM-02(ESP8266).  
-Beta ver1.40
+Beta ver1.53
 
 これはAdafruit社製 16bit フルカラー有機EL SSD1351 用のライブラリです。  
 日本語の16x16ドットフォントを表示させるクラスもあります。
 
 # Change log (更新履歴)
+[Beta ver 1.53]  
+SPI通信を高速化しました。  
+表示速度が２～３倍速くなりました。  
+
 [Beta ver 1.40]  
 以下のクラスを追加  
 SSD1351_Init256 256kカラー（シリアル)で初期化  

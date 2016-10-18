@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.40
+  Beta version 1.53
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -44,7 +44,8 @@ public:
   void SSD1351_BlackOut262();
   void SSD1351_8x16_DisplayOut(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint8_t* buf);
   void SSD1351_8x16_DisplayOut_1col_LtoR(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint16_t sjis_len, uint8_t buf[][16]);
-  void SSD1351_8x16_DisplayOut_1col_RtoL(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint16_t sjis_len, uint8_t buf[][16]);
+  void SSD1351_8x16_DisplayOut_1col_LtoR262(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint16_t sjis_len, uint8_t buf[][16]);
+	void SSD1351_8x16_DisplayOut_1col_RtoL(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint16_t sjis_len, uint8_t buf[][16]);
   void SSD1351_8x16_2x2_DisplayOut(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint8_t* buf);
   void SSD1351_RAM_Hscrolle(uint8_t StartY, uint8_t EndY, uint8_t Interval, uint8_t direction);
   void SSD1351_RAM_Vscrolle(uint8_t StartY, uint8_t OffsetY);
@@ -56,7 +57,8 @@ public:
   void SSD1351_lineV(uint8_t x, uint8_t y1, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
   void SSD1351_RectLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
   void SSD1351_RectFill(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
-  void SPIwrite(uint8_t c);
+  void SSD1351_RectFill262(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue);
+	void SPIwrite(uint8_t c);
   void writeCommand(uint8_t c);
   void writeData(uint8_t c);
   

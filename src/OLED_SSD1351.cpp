@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.40
+  Beta version 1.53
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -32,32 +32,53 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Arduino.h"
 #include "OLED_SSD1351.h"
+#include "SPI.h"
 
-static uint8_t _DCpin;
-static uint8_t _sclk;
-static uint8_t _mosi;
-static uint8_t _RSTpin;
-static uint8_t _cs;
+static uint8_t _dc, _cs, _rst;
+
+/*
+#define PIN_OUT *(volatile uint32_t *)0x60000300
+#define PIN_OUT_SET *(volatile uint32_t *)0x60000304
+#define PIN_OUT_SET_CLEAR *(volatile uint32_t *)0x60000308
+#define PIN_ENABLE *(volatile uint32_t *)0x6000030C
+#define PIN_ENABLE_SET *(volatile uint32_t *)0x60000310
+#define PIN_ENABLE_CLEAR *(volatile uint32_t *)0x60000314
+#define PIN_IN *(volatile uint32_t *)0x60000318
+#define PIN_00  *(volatile uint32_t *)0x60000328
+#define PIN_02  *(volatile uint32_t *)0x60000330
+#define PIN_04  *(volatile uint32_t *)0x60000338
+#define PIN_05  *(volatile uint32_t *)0x6000033C
+#define PIN_12  *(volatile uint32_t *)0x60000358
+#define PIN_13  *(volatile uint32_t *)0x6000035C
+#define PIN_14  *(volatile uint32_t *)0x60000360
+#define PIN_15  *(volatile uint32_t *)0x60000364
+*/
+//GPIO Resisters Direct Access
+#define PIN_OUT *(volatile uint32_t *)0x60000300
+#define PIN_ENABLE *(volatile uint32_t *)0x6000030C
+#define PIN(a)  *(volatile uint32_t *)(0x60000328 + (a)*4)
 
 OLED_SSD1351::OLED_SSD1351(){}
 
 //****************SSD1351初期化*************************************************
 void OLED_SSD1351::SSD1351_Init(const uint8_t sclk, const uint8_t mosi, const uint8_t cs, const uint8_t dc, const uint8_t rst){
+  _dc = dc; _rst = _rst; _cs = cs;
+  
+  SPI.begin();
+  SPI.setFrequency(20000000);
+  SPI.setDataMode(SPI_MODE2);
+  //SPI.setBitOrder(MSBFIRST);
 
-  _DCpin = dc; _sclk = sclk; _mosi = mosi; _RSTpin = rst; _cs = cs;
-  pinMode(_DCpin, OUTPUT);
-  pinMode(_sclk, OUTPUT);
-  pinMode(_mosi, OUTPUT);
-  pinMode(_RSTpin, OUTPUT);
-  pinMode(_cs, OUTPUT);
-  digitalWrite(_cs, LOW);
-   
-  digitalWrite(_RSTpin, HIGH);
-  delay(500);
-  digitalWrite(_RSTpin, LOW);
-  delay(500);
-  digitalWrite(_RSTpin, HIGH);
-  delay(500);
+  PIN_OUT = (1<<dc | 1<<rst | 1<<cs);
+  PIN_ENABLE = (1<<dc | 1<<rst | 1<<cs);
+  
+  PIN(_cs) = 1; //1=LOW
+  PIN(_rst) = 0; //0=HIGH
+  delay(300);
+  PIN(_rst) = 1;
+  delay(300);
+  PIN(_rst) = 0;
+  delay(300);
   
   writeCommand(0xFD); //Set Command Lock
     writeData(0x12); //Unlock OLED driver IC MCU interface from entering command
@@ -65,7 +86,7 @@ void OLED_SSD1351::SSD1351_Init(const uint8_t sclk, const uint8_t mosi, const ui
     writeData(0xB1); //Command A2,B1,B3,BB,BE,C1 accessible if in unlock state
   writeCommand(0xAE); //Sleep mode On (Display OFF)
   writeCommand(0xB3); //Front Clock Divider
-    writeCommand(0xF1); // 7:4 = Oscillator Frequency, 3:0 = CLK Div Ratio (A[3:0]+1 = 1..16)
+    writeCommand(B11110000); // 7:4 = Oscillator Frequency, 3:0 = CLK Div Ratio (A[3:0]+1 = 1..16)
   writeCommand(0xCA); //Set MUX Ratio
     writeData(127);
   writeCommand(0xA0); //Set Re-map
@@ -110,21 +131,23 @@ void OLED_SSD1351::SSD1351_Init(const uint8_t sclk, const uint8_t mosi, const ui
 }
 //****************SSD1351初期化*************************************************
 void OLED_SSD1351::SSD1351_Init262(const uint8_t sclk, const uint8_t mosi, const uint8_t cs, const uint8_t dc, const uint8_t rst, uint8_t col_form){
+	_dc = dc; _rst = _rst; _cs = cs;
+  
+  SPI.begin();
+  SPI.setFrequency(20000000);
+  SPI.setDataMode(SPI_MODE2);
+  //SPI.setBitOrder(MSBFIRST);
 
-  _DCpin = dc; _sclk = sclk; _mosi = mosi; _RSTpin = rst; _cs = cs;
-  pinMode(_DCpin, OUTPUT);
-  pinMode(_sclk, OUTPUT);
-  pinMode(_mosi, OUTPUT);
-  pinMode(_RSTpin, OUTPUT);
-  pinMode(_cs, OUTPUT);
-  digitalWrite(_cs, LOW);
-   
-  digitalWrite(_RSTpin, HIGH);
-  delay(500);
-  digitalWrite(_RSTpin, LOW);
-  delay(500);
-  digitalWrite(_RSTpin, HIGH);
-  delay(500);
+  PIN_OUT = (1<<dc | 1<<rst | 1<<cs);
+  PIN_ENABLE = (1<<dc | 1<<rst | 1<<cs);
+  
+  PIN(_cs) = 1; //1=LOW
+  PIN(_rst) = 0; //0=HIGH
+  delay(300);
+  PIN(_rst) = 1;
+  delay(300);
+  PIN(_rst) = 0;
+  delay(300);
   
   writeCommand(0xFD); //Set Command Lock
     writeData(0x12); //Unlock OLED driver IC MCU interface from entering command
@@ -132,7 +155,7 @@ void OLED_SSD1351::SSD1351_Init262(const uint8_t sclk, const uint8_t mosi, const
     writeData(0xB1); //Command A2,B1,B3,BB,BE,C1 accessible if in unlock state
   writeCommand(0xAE); //Sleep mode On (Display OFF)
   writeCommand(0xB3); //Front Clock Divider
-    writeCommand(0xF1); // 7:4 = Oscillator Frequency, 3:0 = CLK Div Ratio (A[3:0]+1 = 1..16)
+    writeCommand(B11110000); // 7:4 = Oscillator Frequency, 3:0 = CLK Div Ratio (A[3:0]+1 = 1..16)
   writeCommand(0xCA); //Set MUX Ratio
     writeData(127);
   writeCommand(0xA0); //Set Re-map
@@ -186,6 +209,7 @@ void OLED_SSD1351::SSD1351_Init262(const uint8_t sclk, const uint8_t mosi, const
   writeCommand(0x9E); //Scroll Stop Moving
   writeCommand(0xAF); //Sleep mode On (Display ON)
 }
+
 //****************全画面消去*************************************************
 void OLED_SSD1351::SSD1351_BlackOut(){
   writeCommand(0x15); //Set Column
@@ -199,6 +223,7 @@ void OLED_SSD1351::SSD1351_BlackOut(){
     writeData(0x00);
     writeData(0x00);
     //writeData(0x00); //262k colorの場合３バイト分送信
+		yield();
   }
 }
 //****************全画面消去*************************************************
@@ -214,6 +239,7 @@ void OLED_SSD1351::SSD1351_BlackOut262(){
     writeData(0x00);
     writeData(0x00);
     writeData(0x00); //262k colorの場合３バイト分送信
+		yield();
   }
 }
 //****************等倍フォント表示*************************************************
@@ -241,6 +267,7 @@ void OLED_SSD1351::SSD1351_8x16_DisplayOut(uint8_t StartX, uint8_t StartY, uint8
         writeData(0);
       }
     }
+		yield();
   }
 }
 //****************等倍フォント一列一括表示（左→右）*************************************************
@@ -279,6 +306,46 @@ void OLED_SSD1351::SSD1351_8x16_DisplayOut_1col_LtoR(uint8_t StartX, uint8_t Sta
           writeData(0);
         }
       }
+    }
+		yield();
+  }
+}
+//****************等倍フォント一列一括表示（左→右）262000色カラー*************************************************
+void OLED_SSD1351::SSD1351_8x16_DisplayOut_1col_LtoR262(uint8_t StartX, uint8_t StartY, uint8_t Red, uint8_t Green, uint8_t Blue, uint16_t sjis_len, uint8_t buf[][16]){
+  //262k色は表示速度遅いので注意
+  uint8_t i, kk;
+  int16_t j; //これはsigned int でなければならない。
+  uint8_t MaxSjLen;
+  uint8_t MaxCol;
+   
+  double sx = StartX; //ceil関数はdouble型の引数でなければならない
+  MaxSjLen = 16 - ceil(sx / 8);
+  if(sjis_len < MaxSjLen) MaxSjLen = sjis_len;
+  MaxCol = StartX + MaxSjLen*8-1;
+
+  writeCommand(0x15); //Set Column
+    writeData(StartX);
+    writeData(MaxCol);
+  writeCommand(0x75); //Set Row
+    writeData(StartY);
+    writeData(StartY+15);
+  
+  writeCommand(0x5C); //Write RAM
+   
+  for(kk=0; kk<16; kk++){
+    for(i=0; i<MaxSjLen; i++){
+      for(j=7; j>=0; j--){
+        if(buf[i][kk] & _BV(j)){
+          writeData(Red);
+          writeData(Green);
+					writeData(Blue);
+        }else{
+          writeData(0);
+          writeData(0);
+					writeData(0);
+        }
+      }
+			yield();
     }
   }
 }
@@ -351,6 +418,7 @@ void OLED_SSD1351::SSD1351_8x16_2x2_DisplayOut(uint8_t StartX, uint8_t StartY, u
         }
       }
     }
+		yield();
   }
 }
 //****************SSD1351 RAM 水平スクロール*************************************************
@@ -389,16 +457,17 @@ void OLED_SSD1351::Scroller_8x16Dot_Replace(uint8_t drection, uint8_t next_buff1
   int8_t i, j;
 
   for(i=15 ; i>=0 ; i--){ //デクリメントの方が処理速度早い
-    next_buff1[15][i] = ( next_buff1[15][i] | ( scl_buff1[15][i] & B10000000 ));
+    next_buff1[15][i] = ( next_buff1[15][i] | ( scl_buff1[15][i] & 0x80 ));
     scl_buff1[15][i] = scl_buff1[15][i]<<1;
-    scl_buff1[15][i] = ( scl_buff1[15][i] | (( Orign_buff1[i] & B10000000 )>>7));
+    scl_buff1[15][i] = ( scl_buff1[15][i] | (( Orign_buff1[i] & 0x80 )>>7));
     Orign_buff1[i] = Orign_buff1[i]<<1;
   }
+	yield();
   for(i=14 ; i>=0 ; i--){
     for(j=15 ; j>=0 ; j--){ //デクリメントの方が処理速度早い
-      next_buff1[i][j] = ( next_buff1[i][j] | ( scl_buff1[i][j] & B10000000 ));
+      next_buff1[i][j] = ( next_buff1[i][j] | ( scl_buff1[i][j] & 0x80 ));
       scl_buff1[i][j] = scl_buff1[i][j]<<1;
-      scl_buff1[i][j] = ( scl_buff1[i][j] | (( next_buff1[i+1][j] & B10000000 )>>7));
+      scl_buff1[i][j] = ( scl_buff1[i][j] | (( next_buff1[i+1][j] & 0x80 )>>7));
       next_buff1[i+1][j] = next_buff1[i+1][j]<<1;
     }
   }
@@ -495,37 +564,44 @@ void OLED_SSD1351::SSD1351_RectFill(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t 
     writeData(y1);
     writeData(y2);
   writeCommand(0x5C); //Write RAM
-  for(int i=0; i<=(y2-y1); i++)
+  for(int i=0; i<=(y2-y1); i++){
     for(int j=0; j<=(x2-x1); j++){
       writeData(RGBbit1);
       writeData(RGBbit2);
     }
+		yield();
+	}
+}
+//****************四角形、塗りつぶし 262000色*************************************************
+void OLED_SSD1351::SSD1351_RectFill262(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t Red, uint8_t Green, uint8_t Blue){
+  
+  writeCommand(0x15); //Set Column
+    writeData(x1);
+    writeData(x2);
+  writeCommand(0x75); //Set Row
+    writeData(y1);
+    writeData(y2);
+  writeCommand(0x5C); //Write RAM 262k color serial
+  for(int i=0; i<=(y2-y1); i++){
+    for(int j=0; j<=(x2-x1); j++){
+			writeData(Red);
+			writeData(Green);
+			writeData(Blue);
+    }
+		yield();
+	}
 }
 //****************SPIデータ処理*************************************************
-void OLED_SSD1351::SPIwrite(uint8_t c){
-  digitalWrite(_sclk, HIGH);
-  int8_t i; //signed intでなければならない。負の数になると255という値になって、例外エラーになる。
-  for (i=7; i>=0; i--) {
-      digitalWrite(_sclk, LOW);    
-      if (c & _BV(i)) {
-          digitalWrite(_mosi, HIGH);
-      } else {
-          digitalWrite(_mosi, LOW);
-      }
-      digitalWrite(_sclk, HIGH);
-  }
-}
- 
 void OLED_SSD1351::writeCommand(uint8_t c) {
-    digitalWrite(_DCpin, LOW);
-    digitalWrite(_cs, LOW);
-    SPIwrite(c);
-    digitalWrite(_cs, HIGH);
+  PIN(_dc) = 1; //1=LOW
+  PIN(_cs) = 1;
+  SPI.write(c);
+  PIN(_cs) = 0; 
 }
  
 void OLED_SSD1351::writeData(uint8_t c) {
-    digitalWrite(_DCpin, HIGH);
-    digitalWrite(_cs, LOW);
-    SPIwrite(c);
-    digitalWrite(_cs, HIGH);
+  PIN(_dc) = 0; //0=HIGH
+  PIN(_cs) = 1;
+  SPI.write(c);
+  PIN(_cs) = 0;
 }
