@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.53
+  Beta version 1.54
   
 License MIT [Modified person is Mgo-tec.]
 
@@ -62,7 +62,7 @@ OLED_SSD1351::OLED_SSD1351(){}
 
 //****************SSD1351初期化*************************************************
 void OLED_SSD1351::SSD1351_Init(const uint8_t sclk, const uint8_t mosi, const uint8_t cs, const uint8_t dc, const uint8_t rst){
-  _dc = dc; _rst = _rst; _cs = cs;
+  _dc = dc; _rst = rst; _cs = cs;
   
   SPI.begin();
   SPI.setFrequency(20000000);
@@ -131,7 +131,7 @@ void OLED_SSD1351::SSD1351_Init(const uint8_t sclk, const uint8_t mosi, const ui
 }
 //****************SSD1351初期化*************************************************
 void OLED_SSD1351::SSD1351_Init262(const uint8_t sclk, const uint8_t mosi, const uint8_t cs, const uint8_t dc, const uint8_t rst, uint8_t col_form){
-	_dc = dc; _rst = _rst; _cs = cs;
+	_dc = dc; _rst = rst; _cs = cs;
   
   SPI.begin();
   SPI.setFrequency(20000000);

@@ -1,6 +1,6 @@
 /*
   OLED_SSD1351.cpp - for ESP-WROOM-02 ( esp8266 ) or Arduino
-  Beta version 1.53
+  Beta version 1.54
   
 License MIT [Modified person is Mgo-tec.]
 
